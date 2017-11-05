@@ -1,5 +1,5 @@
 html {
-  background:#b3afac url(./img/rainbows.jpg) center center;
+  background:#929194 url(./img/rainbows.jpg) center center;
   background-size: cover;
   font-family:'helvetica neue';
   text-align: center;
@@ -18,16 +18,16 @@ body {
 .clock {
   width: 30rem;
   height: 30rem;
-  border:20px solid rgba(85, 215, 228, 0.5);
+  border: 50px solid rgba(75, 82, 88, 0.41);
   border-radius:50%;
-  margin:50px auto;
+  margin: 50px auto;
   position: relative;
-  padding:2rem;
+  padding: 2rem;
   box-shadow:
-    0 0 0 4px rgba(84, 6, 124, 0.12),
-    inset 0 0 0 3px #d1d959,
-    inset 0 0 10px black,
-    0 0 10px rgba(84, 6, 124, 0.12);
+    0 0 0 5px rgba(75, 82, 88, 0.41),
+    inset 0 0 0 3px rgba(170, 151, 147, 1),
+    inset 0 0 15px #bb5f5f,
+    0 0 50px rgba(84, 6, 124, 0.12)
 }
 
 .clock-face {
@@ -40,22 +40,24 @@ body {
 .hand {
   width:50%;
   position: absolute;
-  top:50%;
+  top: 50%;
   transform-origin: 100%;
   transition: all 0.05s cubic-bezier(0.1, 2.7, 0.58, 1);
 }
 
 .hour-hand {
-  background:#6205b6;
+  background:#582982;
   height: 10px;
+  width: 40%;
+  left: 10%;
 }
 
 .min-hand {
-  background: #fafa03;
+  background: #dcd86b;
   height: 6px;
 }
 
 .second-hand {
-  background: #f10909;
+  background: #bb5f5f;
   height: 2px;
 }
