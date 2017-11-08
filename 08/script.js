@@ -1,40 +1,18 @@
-const canvasColor = document.querySelector('#draw-color');
-const canvasBlack = document.querySelector('#draw-black');
-
-[canvasColor, canvasBlack].forEach(canvas => {
+const createBox = ({selector, styles, changingHue, changingStrokeSize}) => {
+  let canvas = document.querySelector(selector);
   canvas.width = window.innerWidth / 2.1;
   canvas.height = window.innerHeight / 1.2;
-  canvas.addEventListener('mousedown', (e) => {
-    isDrawing = true;
-    [lastX, lastY] = [e.offsetX, e.offsetY];
-  });
-  canvas.addEventListener('mouseup', () => isDrawing = false);
-  canvas.addEventListener('mouseout', () => isDrawing = false);
-});
 
-const ctxColor = canvasColor.getContext('2d');
-const ctxBlack = canvasBlack.getContext('2d');
+  let ctx = canvas.getContext('2d');
+  Object.assign(ctx, styles);
 
-ctxColor.strokeStyle = '#bada55';
-ctxColor.lineJoin = 'round';
-ctxColor.lineCap = 'round';
-ctxColor.lineWidth = 10;
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+  let hue = 0;
+  let increasing = true;
 
-ctxBlack.strokeStyle = '#000000';
-ctxBlack.lineJoin = 'bevel';
-ctxBlack.lineCap = 'round';
-ctxBlack.lineWidth = 10;
-
-
-let isDrawing = false;
-let lastX = 0;
-let lastY = 0;
-let hue = 0;
-let increasing = true;
-
-
-function drawOnCtx(ctx) {
-  return function draw(e) {
+  function draw(e) {
     if (!isDrawing) return; // stop the fn from running when they are not moused down
     ctx.beginPath();
     // start from
@@ -44,36 +22,69 @@ function drawOnCtx(ctx) {
     ctx.stroke();
     [lastX, lastY] = [e.offsetX, e.offsetY];
   }
-}
 
-function rotateHue() {
-  hue++;
-  if (hue >= 360) {
-    hue = 0;
-  }
-  ctxColor.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-}
-
-function rotateStrokeSize() {
-  if (ctxColor.lineWidth >= 100 || ctxColor.lineWidth <= 1) {
-    increasing = !increasing;
+  function rotateHue() {
+    hue++;
+    if (hue >= 360) {
+      hue = 0;
+    }
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
   }
 
-  if (increasing) {
-    ctxColor.lineWidth++;
-  } else {
-    ctxColor.lineWidth--;
+  function rotateStrokeSize() {
+    if (ctx.lineWidth >= 100 || ctx.lineWidth <= 1) {
+      increasing = !increasing;
+    }
+
+    if (increasing) {
+      ctx.lineWidth++;
+    } else {
+      ctx.lineWidth--;
+    }
   }
-}
 
-const onDrawingBlack = drawOnCtx(ctxBlack);
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseout', () => isDrawing = false);
+  canvas.addEventListener('mousemove', (e) => {
+    draw(e);
+    if (changingHue) {
+      rotateHue(ctx, hue);
+    }
+    if (changingStrokeSize) {
+      rotateStrokeSize(ctx, increasing);
+    }
+  });
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  });
 
-const drawOnColor = drawOnCtx(ctxColor);
-function onDrawingColor(e) {
-  drawOnColor(e);
-  rotateHue();
-  rotateStrokeSize();
-}
+  const box = {
+    canvas, ctx, isDrawing, lastX, lastY
+  };
+  return box;
+};
 
-canvasColor.addEventListener('mousemove', onDrawingColor);
-canvasBlack.addEventListener('mousemove', onDrawingBlack);
+const colorBox = createBox({
+  selector: '#draw-color',
+  changingHue: true,
+  changingStrokeSize: true,
+  styles: {
+    strokeStyle: '#bada55',
+    lineJoin: 'round',
+    lineCap: 'round',
+    lineWidth: 10
+  }
+});
+
+const blackBox = createBox({
+  selector: '#draw-black',
+  changingHue: false,
+  changingStrokeSize: false,
+  styles: {
+    strokeStyle: '#000000',
+    lineJoin: 'bevel',
+    lineCap: 'round',
+    lineWidth: 10
+  }
+});
