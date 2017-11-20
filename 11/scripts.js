@@ -3,9 +3,11 @@ const player = document.querySelector('.player');
 const video = player.querySelector('.viewer');
 const progress = player.querySelector('.progress');
 const progressBar = player.querySelector('.progress__filled');
-const toggle = player.querySelector('.toggle');
+const togglePlayBtn = player.querySelector('.toggle-play');
 const skipButtons = player.querySelectorAll('[data-skip]');
-const ranges = player.querySelectorAll('.player__slider');
+const volumeRange = player.querySelector('input[name=volume]');
+const playbackRateRange = player.querySelector('input[name=playbackRate]');
+const toggleMuteBtn = player.querySelector('.mute');
 const fullScreen = player.querySelector('.screen');
 
 /* Build out functions */
@@ -22,16 +24,46 @@ function togglePlay() {
 
 function updatePlayButton() {
   const icon = this.paused ? '►' : '❚❚';
-  toggle.textContent = icon;
+  togglePlayBtn.textContent = icon;
 }
 
 function skip() {
  video.currentTime += parseFloat(this.dataset.skip);
 }
 
-function handleRangeUpdate() {
+function handlePlaybackRateUpdate() {
   video[this.name] = this.value;
-  console.log(video[this.name]);
+}
+
+function handleVolumeRangeUpdate(e) {
+  // console.log(e);
+  // console.log(this);
+  if (event.target.value === '0') {
+    video.muted = true;
+    toggleMuteBtn.title = 'Unmute';
+    toggleMuteBtn.innerHTML = '<i class="fa fa-volume-up fa-lg" aria-hidden="true"></i>';
+  } else {
+    video.muted = false;
+    video.volume = parseFloat(event.target.value);
+    toggleMuteBtn.title = 'Mute';
+    toggleMuteBtn.innerHTML = '<i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>';
+  }
+}
+
+function toggleMute() {
+  if (video.muted) {
+    video.muted = false;
+    video.value = 0.01;
+    volumeRange.value = '0.01';
+    toggleMuteBtn.title = 'Mute';
+    toggleMuteBtn.innerHTML = '<i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>';
+  } else {
+    video.muted = true;
+    video.value = 0;
+    volumeRange.value = '0';
+    toggleMuteBtn.title = 'Unmute';
+    toggleMuteBtn.innerHTML = '<i class="fa fa-volume-up fa-lg" aria-hidden="true"></i>';
+  }
 }
 
 function handleProgress() {
@@ -62,21 +94,33 @@ video.addEventListener('play', updatePlayButton);
 video.addEventListener('pause', updatePlayButton);
 video.addEventListener('timeupdate', handleProgress);
 
-toggle.addEventListener('click', togglePlay);
+togglePlayBtn.addEventListener('click', togglePlay);
 skipButtons.forEach(button => button.addEventListener('click', skip));
-ranges.forEach(range => range.addEventListener('change', handleRangeUpdate));
-ranges.forEach(range => range.addEventListener('mousemove', handleRangeUpdate));
 
-let mousedown = false;
+playbackRateRange.addEventListener('change', handlePlaybackRateUpdate);
+playbackRateRange.addEventListener('mousemove', handlePlaybackRateUpdate);
+
+let volumeRangeMousedown = false;
+volumeRange.addEventListener('change', handleVolumeRangeUpdate);
+volumeRange.addEventListener('mousemove', (e) => {
+  if(volumeRangeMousedown) {
+    handleVolumeRangeUpdate(e);
+  }
+});
+volumeRange.addEventListener('mousedown', () => volumeRangeMousedown = true);
+volumeRange.addEventListener('mouseup', () => volumeRangeMousedown = false);
+
+let progressBarMousedown = false;
 progress.addEventListener('click', scrub);
 progress.addEventListener('mousemove', (e) => {
-  if(mousedown) {
+  if(progressBarMousedown) {
     scrub(e);
   }
 });
 // alternatively:
 // progress.addEventListener('mousemove', (e) => mousedown && scrub(e));
-progress.addEventListener('mousedown', () => mousedown = true);
-progress.addEventListener('mouseup', () => mousedown = false);
+progress.addEventListener('mousedown', () => progressBarMousedown = true);
+progress.addEventListener('mouseup', () => progressBarMousedown = false);
 
 fullScreen.addEventListener('click', toogleFullScreen);
+toggleMuteBtn.addEventListener('click', toggleMute);
