@@ -1,7 +1,7 @@
 (() => {
   const videos = Array.from(document.querySelectorAll('[data-time]'));
   const button = document.querySelector('button');
-  const paragraph = document.querySelector('p');
+  // const paragraph = document.querySelector('p');
 
   const seconds = videos
     .map(video => video.dataset.time)
@@ -30,8 +30,9 @@
   const text = `Total videos duration: ${h} hours ${m} mins ${s} secs`;
 
   displayVideosDuration = () => {
-    button.style.display = 'none';
+    const paragraph = document.createElement('p');
     paragraph.innerHTML = text;
+    document.body.replaceChild(paragraph, button);
   };
 
   button.addEventListener('click', displayVideosDuration);
